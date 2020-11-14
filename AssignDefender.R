@@ -1,5 +1,6 @@
 #Assign Defender
-setwd('F:/BigDataBowl2021')
+# setwd('F:/BigDataBowl2021')
+setwd("~/Documents/BigDataBowl2020-main")
 source('InitialPlotting.R')
 
 
@@ -65,7 +66,7 @@ assignDefenders <- function(playNum,gameNum,data = allWeeksData){
 }
 
 
-assignDefenders(play,game,trackData)
+# assignDefenders(play,game,trackData)
 
 plotPlayWithDefenders <- function(playNum,gameNum,data = allWeeksData){
   #Plots a specific play of a specific game
