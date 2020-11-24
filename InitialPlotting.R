@@ -71,7 +71,7 @@ plotFrame <- function(frameNum,playNum,gameNum,data = allWeeksData){
 plotPlay <- function(playNum,gameNum,data = allWeeksData){
   #Plots a specific play of a specific game
   base = baseNFLField()
-  playData = isolatePlay(playNum,gameNum)
+  playData = isolatePlay(playNum,gameNum,data)
   playInfo = findPlay(playNum,gameNum)
   playData[playData$displayName == 'Football','jerseyNumber'] = 'FB'
   

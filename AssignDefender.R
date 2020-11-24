@@ -1,6 +1,6 @@
 #Assign Defender
-# setwd('F:/BigDataBowl2021')
-setwd("~/Documents/BigDataBowl2020-main")
+setwd('F:/BigDataBowl2021')
+# setwd("~/Documents/BigDataBowl2020-main")
 source('InitialPlotting.R')
 
 
