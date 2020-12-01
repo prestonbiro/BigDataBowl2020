@@ -8,7 +8,7 @@ source('SplitPlaysByWeek.R')
 load('Plays_All_Offense_Defense_Ball.Rdata')
 
 
-findAirDuration <- function(throwDistance,playData = trimmedPlays){
+findAirDuration <- function(throwDistance,playData = trimmedPlays,medOnly = F){
   #Given a throw distance, will find the fit gamma distribution of times for 
   #how long the ball might be in the air
   
@@ -21,8 +21,15 @@ findAirDuration <- function(throwDistance,playData = trimmedPlays){
                            !is.na(playData$BallAirDuration),'BallAirDuration'] + 1e-6
   # print(durationsToUse)
   fit.gamma <- fitdist(durationsToUse,distr = 'gamma', method = 'mle')
-  timeQuants = qgamma(c(.05,.1,.25,.5,.75,.9,.95),fit.gamma$estimate[1],fit.gamma$estimate[2]) - 1e-6
-  names(timeQuants) = c(.05,.1,.25,.5,.75,.9,.95)
+  if(medOnly){
+    timeQuants = qgamma(.5,fit.gamma$estimate[1],fit.gamma$estimate[2]) - 1e-6
+    names(timeQuants) = .5
+  }
+  else{
+    timeQuants = qgamma(c(.05,.1,.25,.5,.75,.9,.95),fit.gamma$estimate[1],fit.gamma$estimate[2]) - 1e-6
+    names(timeQuants) = c(.05,.1,.25,.5,.75,.9,.95)
+  }
+  
   return(timeQuants)
 }
 

@@ -2,7 +2,7 @@
 setwd('F:/BigDataBowl2021')
 
 games = read.csv('games.csv')
-load('UpdatedPlays.Rdata')
+load('FinalPlays.Rdata')
 # load('Combined2018PassingData.RData')
 
 # w1Plays = plays[plays$gameId %in%  games[games$week == 1,'gameId'],]
@@ -28,7 +28,7 @@ findWeekNum <- function(gameNum){
 }
 
 splitPlaysByWeek <- function(weekNum){
-  return(plays[plays$gameId %in%  games[games$week == weekNum,'gameId'],])
+  return(playsToUse[playsToUse$gameId %in%  games[games$week == weekNum,'gameId'],])
 }
 
 splitTrackingByWeek <- function(weekNum){

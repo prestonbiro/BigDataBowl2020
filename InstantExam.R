@@ -42,9 +42,14 @@ findFrameAtArrival <- function(playNum,gameNum,data = w1Data,plotOn = F,returnAl
   if(plotOn) returnAllRes = T
   if(returnAllRes) assignDef = T
   if(assignDef)  defData = assignDefenders(playNum,gameNum,data)
-  frameThrow = playData[(playData$event == 'pass_arrived') | (playData$event == 'pass_outcome_caught') |
-                          (playData$event == 'pass_outcome_incomplete') | 
-                          (playData$event == 'pass_outcome_touchdown'),'frameId'][1]
+  if(any((playData$event == 'pass_arrived') | (playData$event == 'pass_outcome_caught') |
+     (playData$event == 'pass_outcome_incomplete') | 
+     (playData$event == 'pass_outcome_touchdown'))){
+    frameThrow = playData[(playData$event == 'pass_arrived') | (playData$event == 'pass_outcome_caught') |
+                            (playData$event == 'pass_outcome_incomplete') | 
+                            (playData$event == 'pass_outcome_touchdown'),'frameId'][1]
+  }
+  else return(data.frame(info = F,displayName = F))
   if(any(is.na(playData[playData$frameId == frameThrow,'x']))){
     frameThrow = playData[(playData$event == 'first_contact'),'frameId'][1]
   }
