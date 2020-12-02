@@ -8,12 +8,13 @@ source('SplitPlaysByWeek.R')
 load('Plays_All_Offense_Defense_Ball.Rdata')
 
 
-findAirDuration <- function(throwDistance,playData = trimmedPlays,medOnly = F){
+findAirDuration <- function(throwDistance,playData = playsToUse,medOnly = F){
   #Given a throw distance, will find the fit gamma distribution of times for 
   #how long the ball might be in the air
   
   #Finds previous data within a 1 yard range of the given distance, adds small 1e-6 to make gamma fitable with 0s
   if(throwDistance < 1) throwDistance = 1
+  else if(throwDistance > 55) throwDistance = 55
   laxSpace = ifelse(throwDistance < 30,.5,ifelse(throwDistance < 40,1,ifelse(throwDistance < 50,1.5,5)))
   durationsToUse = playData[(playData$throwDistance >= throwDistance - laxSpace) & 
                          (playData$throwDistance <= throwDistance + laxSpace) &

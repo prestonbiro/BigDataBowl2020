@@ -23,19 +23,19 @@ gridField <- function(QBLOC_X,playDir){
   }
   # plotBase = baseNFLField()
   # plotBase <- plotBase + geom_point(data = gridDf,aes(x = xPts,y = yPts))
+  # print(plotBase)
   return(gridDf)
 }
 
 # a = gridField(45,'right')
 
 distToGrid <- function(QB_X,QB_Y,playDir){
-  QBLOC_X = QB_X + 10
-  griddedField = gridField(QBLOC_X,playDir)
-  griddedField$DistToQB = round(sqrt((QBLOC_X - griddedField$xPts)^2 + (QB_Y - griddedField$yPts)^2),1)
+  griddedField = gridField(QB_X,playDir)
+  griddedField$DistToQB = round(sqrt((QB_X - griddedField$xPts)^2 + (QB_Y - griddedField$yPts)^2),1)
   # plotBase = baseNFLField()
   # plotBase <- plotBase + geom_label(data = griddedField,aes(x = xPts,y = yPts,label = DistToQB))
+  # print(plotBase)
   return(griddedField)
-  # return(plotBase)
 }
 
 airDurToGrid <- function(QB_X,QB_Y,playDir,medOnly = F){
@@ -89,13 +89,15 @@ projectFuture <- function(player_x,player_y,vel_x,vel_y,dest_x,dest_y,timeToArri
     timeRespond = timeToArrive - t_react
     distRespond = sqrt((reactLoc_x - dest_x)^2 + (reactLoc_y - dest_y)^2)
     speedNeedRespond = distRespond/timeRespond
-    
+
     if(speedNeedRespond < maxSpeed) return(TRUE)
     else return(FALSE)
   }
 }
 
 findCoverage <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir){
+  player_x = player_x + 10
+  qb_x = qb_x + 10
   gridVals = airDurToGrid(qb_x,qb_y,playDir)
   gridCover = gridVals[,c('xPts','yPts','5%','10%','25%','50%','75%','90%','95%')]
   # gridCover[,c('LowRange','MidRange','HighRange')] = NA
@@ -126,23 +128,35 @@ findCoverage <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir){
 }
 
 # projectFuture(0,0,1,1,2,2,.55)
-
+findCoverage(p$defender1X,p$defender1Y,p$defender1S * sin(p$defender1Dir * pi / 180),p$defender1S * cos(p$defender1Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+findCoverage(p$defender2X,p$defender2Y,p$defender2S * sin(p$defender2Dir * pi / 180),p$defender2S * cos(p$defender2Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+findCoverage(p$defender3X,p$defender3Y,p$defender3S * sin(p$defender3Dir * pi / 180),p$defender3S * cos(p$defender3Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findCoverage(r$defender1X,r$defender1Y,r$defender1S * sin(r$defender1Dir * pi / 180),r$defender1S * cos(r$defender1Dir * pi / 180),r$QB_X,r$QB_Y,r$PlayDirection)
 # findCoverage(20,25,0,10,25,25,'left')
 
 findMedianCoverageHull <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir){
+  player_x = player_x + 10
+  qb_x = qb_x + 10
+  # print(paste(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir))
   gridVals = airDurToGrid(qb_x,qb_y,playDir,medOnly=T)
   gridCover = gridVals[,c('xPts','yPts','50%')]
   gridCover$CoveredBool = NA
-  
+  # print(gridCover)
   for(i in 1:nrow(gridCover)){
     gridCover[i,c('CoveredBool')] =
       projectFuture(player_x,player_y,vel_x,vel_y,gridCover[i,'xPts'],gridCover[i,'yPts'],gridCover[i,'50%'])
   }
+  # print(gridCover$CoveredBool)
   
   trueSpots = gridCover[gridCover$CoveredBool == T,c('xPts','yPts')]
   hullIx = chull(trueSpots$xPts,trueSpots$yPts)
-  # return(trueSpots[hullIx,])
-  return(trueSpots)
+  return(trueSpots[hullIx,])
+  # return(trueSpots)
 }
+
+findMedianCoverageHull(p$defender1X,p$defender1Y,p$defender1S * sin(p$defender1Dir * pi / 180),p$defender1S * cos(p$defender1Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+findMedianCoverageHull(p$defender2X,p$defender2Y,p$defender2S * sin(p$defender2Dir * pi / 180),p$defender2S * cos(p$defender2Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+findMedianCoverageHull(p$defender3X,p$defender3Y,p$defender3S * sin(p$defender3Dir * pi / 180),p$defender3S * cos(p$defender3Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findMedianCoverageHull(r$defender1X,r$defender1Y,r$defender1S * sin(r$defender1Dir * pi / 180),r$defender1S * cos(r$defender1Dir * pi / 180),r$QB_X,r$QB_Y,r$PlayDirection)
 
 # aAll = findMedianCoverageHull(20,25,0,10,25,25,'left')

@@ -41,7 +41,7 @@ baseNFLField <- function(){
   field.numbers.bot.df <- data.frame(textVals = unlist(lapply(c(1,0,2,0,3,0,4,0,5,0,4,0,3,0,2,0,1,0),toString)),
                                      #x_text = c(8,12,18,22,28,32,38,42,48,52,58,62,68,72,78,82,88,92),
                                      x_text = c(8.5,11.5,18.5,21.5,28.5,31.5,38.5,41.5,48.5,51.5,58.5,61.5,68.5,71.5,78.5,81.5,88.5,91.5)+10,
-                                     y_text = rep(ybot + 5,18))
+                                     y_text = rep(ybot + 9,18))
   
   show.bot.numbers <- geom_text(data=field.numbers.bot.df, aes(x = x_text, y = y_text, label = textVals),
                                 size = 6,col='white',family = ifelse('Century' %in% fonts(),windowsFont('Century'),'Impact'))
@@ -49,7 +49,7 @@ baseNFLField <- function(){
   field.numbers.top.df <- data.frame(textVals = unlist(lapply(c(0,1,0,2,0,3,0,4,0,5,0,4,0,3,0,2,0,1),toString)),
                                      #x_text = c(8,12,18,22,28,32,38,42,48,52,58,62,68,72,78,82,88,92),
                                      x_text = c(8.5,11.5,18.5,21.5,28.5,31.5,38.5,41.5,48.5,51.5,58.5,61.5,68.5,71.5,78.5,81.5,88.5,91.5)+10,
-                                     y_text = rep(ytop - 5,18))
+                                     y_text = rep(ytop - 9,18))
   
   show.top.numbers <- geom_text(data=field.numbers.top.df, aes(x = x_text, y = y_text, label = textVals),
                                 size = 6,col='white',family = ifelse('Century' %in% fonts(),windowsFont('Century'),'Impact'),angle = 180)
