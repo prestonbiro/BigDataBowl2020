@@ -1,7 +1,7 @@
 #Fix Trimmed Data
 
 setwd('F:/BigDataBowl2021')
-load('Plays_Off_Def_Ball_Dist.Rdata')
+load('Plays_Off_Def_Ball_Dist_Dir.Rdata')
 
 droppedFrames = subset(trimmedPlays,select = -c(defender1dir,defender2dir,defender3dir))
 
@@ -30,11 +30,14 @@ rightClass$defender3A = as.numeric(rightClass$defender3A)
 rightClass$defender3O = as.numeric(rightClass$defender3O)
 rightClass$defender3Dist = as.numeric(rightClass$defender3Dist)
 
+# load('Plays_All_Offense.Rdata')
+# p = plays[!is.na(plays$MatchedTargetReceiver) & !is.na(plays$throwDistance),]
 # rightClass$QB_X = p$QB_X
 # rightClass$QB_Y = p$QB_Y
 #If the qb location is missing, its because it was dumped when attaching the defender and distances in the colstouse thing
 #I added it in manually here. Hopefully were done with cleaning the data
 playsToUse = rightClass
+
 
 #Read above comment before using
 # save(playsToUse,file='FinalPlays.Rdata')
