@@ -8,13 +8,19 @@ load('FinalPlays.Rdata')
 
 xleft = 0; xright = 120; ybot = 0; ytop = 53.3
 
-gridField <- function(QBLOC_X,playDir){
-  if(playDir == 'left'){
-    xmin = ifelse(QBLOC_X-50<xleft,xleft,QBLOC_X-50); xmax = QBLOC_X
+gridField <- function(QBLOC_X,playDir,givenMinX = NULL,givenMaxX = NULL){
+  if(is.null(givenMinX)){
+    if(playDir == 'left'){
+      xmin = ifelse(QBLOC_X-50<xleft,xleft,QBLOC_X-50); xmax = QBLOC_X
+    }
+    else{
+      xmax = ifelse(QBLOC_X+50>xright,xright,QBLOC_X+50); xmin = QBLOC_X
+    }
   }
   else{
-    xmax = ifelse(QBLOC_X+50>xright,xright,QBLOC_X+50); xmin = QBLOC_X
+    xmin = givenMinX; xmax = givenMaxX
   }
+  
   xSeq = seq(xmin,xmax,length.out = ceiling((xmax-xmin)/1.75))
   ySeq = seq(ybot,ytop,length.out = 30)
   gridDf = data.frame()
@@ -29,8 +35,8 @@ gridField <- function(QBLOC_X,playDir){
 
 # a = gridField(45,'right')
 
-distToGrid <- function(QB_X,QB_Y,playDir){
-  griddedField = gridField(QB_X,playDir)
+distToGrid <- function(QB_X,QB_Y,playDir,givenMinX = NULL,givenMaxX = NULL){
+  griddedField = gridField(QB_X,playDir,givenMinX,givenMaxX)
   griddedField$DistToQB = round(sqrt((QB_X - griddedField$xPts)^2 + (QB_Y - griddedField$yPts)^2),1)
   # plotBase = baseNFLField()
   # plotBase <- plotBase + geom_label(data = griddedField,aes(x = xPts,y = yPts,label = DistToQB))
@@ -38,8 +44,9 @@ distToGrid <- function(QB_X,QB_Y,playDir){
   return(griddedField)
 }
 
-airDurToGrid <- function(QB_X,QB_Y,playDir,medOnly = F){
-  gridDur = distToGrid(QB_X,QB_Y,playDir)
+airDurToGrid <- function(QB_X,QB_Y,playDir,medOnly = F,givenGrid = NA){
+  if(is.na(givenGrid))  gridDur = distToGrid(QB_X,QB_Y,playDir,givenMinX,givenMaxX)
+  else gridDur = givenGrid
   if(medOnly){
     gridDur[,'50%'] = NA
     for(i in 1:nrow(gridDur)) {
@@ -95,10 +102,10 @@ projectFuture <- function(player_x,player_y,vel_x,vel_y,dest_x,dest_y,timeToArri
   }
 }
 
-findCoverage <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir){
-  player_x = player_x + 10
-  qb_x = qb_x + 10
-  gridVals = airDurToGrid(qb_x,qb_y,playDir)
+findCoverage <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir,givenGrid = NA){
+  player_x = player_x #+ 10
+  qb_x = qb_x #+ 10
+  gridVals = airDurToGrid(qb_x,qb_y,playDir,givenGrid = givenGrid)
   gridCover = gridVals[,c('xPts','yPts','5%','10%','25%','50%','75%','90%','95%')]
   # gridCover[,c('LowRange','MidRange','HighRange')] = NA
   gridCover$CoveragePercentage = NA
@@ -123,22 +130,22 @@ findCoverage <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir){
   plotBase = baseNFLField()
   plotBase <- plotBase + stat_contour(data = gridCover,aes(x = xPts,y = yPts,z = CoveragePercentage),binwidth = .2)
   plotBase <- plotBase + geom_point(inherit.aes = F,data = data.frame(xp = c(qb_x,player_x),yp = c(qb_y,player_y)),aes(x=xp,y=yp,col=c('red','blue')))
-  return(plotBase)
-  # return(gridCover)
+  # return(plotBase)
+  return(gridCover)
 }
 
 # projectFuture(0,0,1,1,2,2,.55)
-findCoverage(p$defender1X,p$defender1Y,p$defender1S * sin(p$defender1Dir * pi / 180),p$defender1S * cos(p$defender1Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
-findCoverage(p$defender2X,p$defender2Y,p$defender2S * sin(p$defender2Dir * pi / 180),p$defender2S * cos(p$defender2Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
-findCoverage(p$defender3X,p$defender3Y,p$defender3S * sin(p$defender3Dir * pi / 180),p$defender3S * cos(p$defender3Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findCoverage(p$defender1X,p$defender1Y,p$defender1S * sin(p$defender1Dir * pi / 180),p$defender1S * cos(p$defender1Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findCoverage(p$defender2X,p$defender2Y,p$defender2S * sin(p$defender2Dir * pi / 180),p$defender2S * cos(p$defender2Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findCoverage(p$defender3X,p$defender3Y,p$defender3S * sin(p$defender3Dir * pi / 180),p$defender3S * cos(p$defender3Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
 # findCoverage(r$defender1X,r$defender1Y,r$defender1S * sin(r$defender1Dir * pi / 180),r$defender1S * cos(r$defender1Dir * pi / 180),r$QB_X,r$QB_Y,r$PlayDirection)
 # findCoverage(20,25,0,10,25,25,'left')
 
-findMedianCoverageHull <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir){
+findMedianCoverageHull <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir,givenMinX = NULL,givenMaxX = NULL){
   player_x = player_x + 10
   qb_x = qb_x + 10
   # print(paste(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playDir))
-  gridVals = airDurToGrid(qb_x,qb_y,playDir,medOnly=T)
+  gridVals = airDurToGrid(qb_x,qb_y,playDir,medOnly=T,givenMinX = givenMinX,givenMaxX = givenMaxX)
   gridCover = gridVals[,c('xPts','yPts','50%')]
   gridCover$CoveredBool = NA
   # print(gridCover)
@@ -154,9 +161,61 @@ findMedianCoverageHull <- function(player_x,player_y,vel_x,vel_y,qb_x,qb_y,playD
   # return(trueSpots)
 }
 
-findMedianCoverageHull(p$defender1X,p$defender1Y,p$defender1S * sin(p$defender1Dir * pi / 180),p$defender1S * cos(p$defender1Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
-findMedianCoverageHull(p$defender2X,p$defender2Y,p$defender2S * sin(p$defender2Dir * pi / 180),p$defender2S * cos(p$defender2Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
-findMedianCoverageHull(p$defender3X,p$defender3Y,p$defender3S * sin(p$defender3Dir * pi / 180),p$defender3S * cos(p$defender3Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findMedianCoverageHull(p$defender1X,p$defender1Y,p$defender1S * sin(p$defender1Dir * pi / 180),p$defender1S * cos(p$defender1Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findMedianCoverageHull(p$defender2X,p$defender2Y,p$defender2S * sin(p$defender2Dir * pi / 180),p$defender2S * cos(p$defender2Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
+# findMedianCoverageHull(p$defender3X,p$defender3Y,p$defender3S * sin(p$defender3Dir * pi / 180),p$defender3S * cos(p$defender3Dir * pi / 180),p$QB_X,p$QB_Y,p$PlayDirection)
 # findMedianCoverageHull(r$defender1X,r$defender1Y,r$defender1S * sin(r$defender1Dir * pi / 180),r$defender1S * cos(r$defender1Dir * pi / 180),r$QB_X,r$QB_Y,r$PlayDirection)
 
 # aAll = findMedianCoverageHull(20,25,0,10,25,25,'left')
+
+# findMedianCoverageHull()
+
+plotCoverageHulls <- function(defenderData,allData,givenMinX = NULL,givenMaxX = NULL){
+  qbx = allData[allData$position == 'QB','x']
+  qby = allData[allData$position == 'QB','y']
+  
+  fieldGridDf = distToGrid(qbx,qby,defenderData[1,'playDirection'],givenMinX,givenMaxX)
+  
+  for(i in 1:nrow(defenderData)){
+    p = defenderData[i,]
+    a = findCoverage(p$x,p$y,p$s * sin(p$dir * pi / 180),p$s * cos(p$dir * pi / 180),qbx,qby,p$playDirection,givenMinX,givenMaxX)
+    # print(a)
+    
+    # print(p$displayName)
+    fieldGridDf[,as.character(p$displayName)] = a$CoveragePercentage
+    # print(a)
+    # print(fieldGridDf)
+  }
+  return(fieldGridDf)
+}
+# fullHullDf3 = plotCoverageHulls(ap3$defInfo,ap3$allInfo)
+# 
+# fullHullDf3$SumCol = rowSums(fullHullDf3[,4:ncol(fullHullDf3)]) 
+# fullHullDf3$SumCol = fullHullDf3$SumCol/(ncol(fullHullDf3) - 3)
+# 
+# fullHullPlot3 <- ggplot(data = fullHullDf3) +
+#   geom_contour_filled(aes(x = xPts,y = yPts,z = SumCol),binwidth = .05) +
+#   geom_point(data = ap3$allInfo,aes(x = x,y = y, colour = team,size = 2)) + 
+#   geom_segment(data = ap3$allInfo,
+#                aes(x = x,y = y, xend = x + s * sin(dir * pi / 180), yend = y + s * cos(dir * pi / 180),colour = team),
+#                arrow = arrow(length = unit(.4,"cm"))) +
+#   theme(legend.position = 'none') + labs(x = '',y = '') +
+#   geom_point(data = aa3$allInfo[aa3$allInfo$team == 'football',], aes(x=x, y = y),colour = 'burlywood4',size = 5)
+# fullHullPlot3
+# 
+# fullHullDf2 = plotCoverageHulls(ap2$defInfo,ap2$allInfo)
+# 
+# fullHullDf2$SumCol = rowSums(fullHullDf2[,4:ncol(fullHullDf2)]) 
+# fullHullDf2$SumCol = fullHullDf2$SumCol/(ncol(fullHullDf2) - 3)
+# 
+# fullHullPlot2 <- ggplot(data = fullHullDf2) +
+#   geom_contour_filled(aes(x = xPts,y = yPts,z = SumCol),binwidth = .05) +
+#   geom_point(data = ap2$allInfo,aes(x = x,y = y, colour = team,size = 2)) + 
+#   geom_segment(data = ap2$allInfo,
+#                aes(x = x,y = y, xend = x + s * sin(dir * pi / 180), yend = y + s * cos(dir * pi / 180),colour = team),
+#                arrow = arrow(length = unit(.4,"cm"))) +
+#   theme(legend.position = 'none') + labs(x = '',y = '') +
+#   geom_point(data = ap2$allInfo[ap2$allInfo$team == 'football',], aes(x=x, y = y),colour = 'burlywood4',size = 5)
+# fullHullPlot2
+# 
+# grid.arrange(fullHullPlot2,fullHullPlot3)

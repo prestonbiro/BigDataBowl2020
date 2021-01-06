@@ -16,9 +16,12 @@ findFrameAtPass <- function(playNum,gameNum,data = w1Data,plotOn = F,returnAllRe
   
   if(plotOn){
     p = plotFrame(frameThrow,playNum,gameNum,data)
-    p = p +     
-      geom_segment(data = defData[(defData$frameId == frameThrow),],
-                   aes(x = x,y = y,xend = DefendingPlayer_x,yend = DefendingPlayer_y))
+    p = p +
+      # geom_segment(data = defData[(defData$frameId == frameThrow),],
+      #              aes(x = x,y = y,xend = DefendingPlayer_x,yend = DefendingPlayer_y)) + 
+      geom_segment(data = isolateFrame(frameThrow,playNum,gameNum,data),
+                aes(x = x,y = y, xend = x + s * sin(dir * pi / 180), yend = y + s * cos(dir * pi / 180),colour = team),
+                arrow = arrow(length = unit(.4,"cm")))
   }
   else{
     p = 'pineapple'
@@ -44,9 +47,11 @@ findFrameAtArrival <- function(playNum,gameNum,data = w1Data,plotOn = F,returnAl
   if(assignDef)  defData = assignDefenders(playNum,gameNum,data)
   if(any((playData$event == 'pass_arrived') | (playData$event == 'pass_outcome_caught') |
      (playData$event == 'pass_outcome_incomplete') | 
+     (playData$event == 'pass_outcome_interception') |
      (playData$event == 'pass_outcome_touchdown'))){
     frameThrow = playData[(playData$event == 'pass_arrived') | (playData$event == 'pass_outcome_caught') |
                             (playData$event == 'pass_outcome_incomplete') | 
+                            (playData$event == 'pass_outcome_interception') |
                             (playData$event == 'pass_outcome_touchdown'),'frameId'][1]
   }
   else return(data.frame(info = F,displayName = F))
@@ -54,11 +59,16 @@ findFrameAtArrival <- function(playNum,gameNum,data = w1Data,plotOn = F,returnAl
     frameThrow = playData[(playData$event == 'first_contact'),'frameId'][1]
   }
   
+  
+  
   if(plotOn){
     p = plotFrame(frameThrow,playNum,gameNum,data)
-    p = p +     
-      geom_segment(data = defData[(defData$frameId == frameThrow),],
-                   aes(x = x,y = y,xend = DefendingPlayer_x,yend = DefendingPlayer_y))
+    p = p +
+      # geom_segment(data = defData[(defData$frameId == frameThrow),],
+      #              aes(x = x,y = y,xend = DefendingPlayer_x,yend = DefendingPlayer_y)) +
+      geom_segment(data = isolateFrame(frameThrow,playNum,gameNum,data),
+                   aes(x = x,y = y, xend = x + s * sin(dir * pi / 180), yend = y + s * cos(dir * pi / 180),colour = team),
+                   arrow = arrow(length = unit(.4,"cm")))
   }
   else{
     p = 'pineapple'

@@ -28,9 +28,14 @@ findPlay <- function(playNum,gameNum,data = plays){
   return(playInfo)
 }
 
-plotFrame <- function(frameNum,playNum,gameNum,data = allWeeksData){
+plotFrame <- function(frameNum,playNum,gameNum,data = allWeeksData,color = T){
   #Plots a specific frame of a specific play 
-  base = baseNFLField()
+  if(color){
+    base = baseNFLField()
+  }
+  else{
+    base = noColor_baseNFLField()
+  }
   frameData = isolateFrame(frameNum,playNum,gameNum,data)
   frameData[frameData$displayName == 'Football','jerseyNumber'] = 'FB'
   playInfo = findPlay(playNum,gameNum)
@@ -102,10 +107,53 @@ plotPlay <- function(playNum,gameNum,data = allWeeksData){
 }
 
 
-
+# 
 # frame = 1
-# play = 75
-# game = 2018090600
+# play1 = 2845 #Okay
+# play2 = 1425 #Pretty good
+# play3 = 3784 #Pretty good
+# play4 = 1737 #Good
+# play5 = 877 # okay
+# play6 = 2353 #Good
+# play7 = 2312
+# game = 2018090900
+# 
+# plotFrame(20,play,game,w1Data)
+# 
+# ap1 = findFrameAtPass(play1,game,w1Data,T)
+# ap2 = findFrameAtPass(play2,game,w1Data,T)
+# # ap2$plot
+# ap3 = findFrameAtPass(play3,game,w1Data,T)
+# # ap3$plot
+# ap4 = findFrameAtPass(play4,game,w1Data,T)
+# # ap4$plot
+# ap5 = findFrameAtPass(play5,game,w1Data,T)
+# # ap5$plot
+# ap6 = findFrameAtPass(play6,game,w1Data,T)
+# # ap6$plot
+# ap7 = findFrameAtPass(play7,game,w1Data,T)
+# # ap7$plot
+# 
+# findPlay(play1,game)
+# findPlay(play2,game)
+# findPlay(play3,game)
+# findPlay(play4,game)
+# findPlay(play5,game)
+# findPlay(play6,game)
+# findPlay(play7,game)
+# 
+# ap1$plot
+# ap2$plot
+# ap3$plot
+# ap4$plot
+# ap5$plot
+# ap6$plot
+# ap7$plot
+# 
+# 
+# 
+# aa = findFrameAtArrival(play1,game,w1Data,T)
+# aa$plot
 # 
 # playRight = 320
 # findPlay(play,game)

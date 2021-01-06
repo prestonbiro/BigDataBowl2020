@@ -35,6 +35,7 @@ findAirDuration <- function(throwDistance,playData = playsToUse,medOnly = F){
 }
 
 
+findAirDuration(20)
 # plot(trimmedPlays$throwDistance,trimmedPlays$BallAirDuration)
 # points(trimmedPlays[(trimmedPlays$throwDistance >19) & (trimmedPlays$throwDistance < 21),'throwDistance'],
 #        trimmedPlays[(trimmedPlays$throwDistance >19) & (trimmedPlays$throwDistance < 21),'BallAirDuration'],col='red')
